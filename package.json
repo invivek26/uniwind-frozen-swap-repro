@@ -1,0 +1,27 @@
+{
+  "name": "uniwind-frozen-swap-repro",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start",
+    "ios": "expo run:ios"
+  },
+  "dependencies": {
+    "expo": "~56.0.12",
+    "react": "19.2.3",
+    "react-freeze": "^1.0.4",
+    "react-native": "0.85.3",
+    "react-native-nitro-modules": "0.36.5",
+    "react-native-reanimated": "4.3.1",
+    "react-native-worklets": "0.8.3",
+    "uniwind": "npm:uniwind-pro@1.6.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.0",
+    "tailwindcss": "^4.0.6"
+  },
+  "private": true,
+  "trustedDependencies": [
+    "uniwind"
+  ]
+}
