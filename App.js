@@ -52,12 +52,20 @@ const HomeScreen = ({ navigation }) => {
         {`theme=${theme} current=${Uniwind.currentTheme} os=${String(Appearance.getColorScheme())}`}
       </Text>
       <Pills selected={selected} onSelect={setSelected} />
-      <Pressable
-        className="rounded-lg bg-fill px-3 py-2"
-        onPress={() => navigation.navigate("Settings")}
-      >
-        <Text className="text-fg">Open Settings</Text>
-      </Pressable>
+      <View className="flex-row gap-2">
+        <Pressable
+          className="rounded-lg bg-fill px-3 py-2"
+          onPress={() => navigation.navigate("Settings")}
+        >
+          <Text className="text-fg">Open Settings</Text>
+        </Pressable>
+        <Pressable
+          className="rounded-lg bg-fill px-3 py-2"
+          onPress={() => navigation.navigate("DataAttrs")}
+        >
+          <Text className="text-fg">data-*</Text>
+        </Pressable>
+      </View>
       <Text className="text-center text-fg">
         Repro: boot (dark, Alpha selected) → Open Settings → Light → Back →
         tap Beta. Beta's label paints RN default black ink instead of
@@ -99,6 +107,44 @@ const SettingsScreen = ({ navigation }) => (
   </View>
 )
 
+
+// Issue: flip mutations are keyed by className string alone — siblings
+// sharing one string with different data-* values collapse to one payload.
+const DATA_PILL_CLASS = "rounded-full px-4 py-2 bg-fill data-[selected=true]:bg-brand"
+
+const DataAttrsScreen = ({ navigation }) => {
+  const [selected, setSelected] = useState("Alpha")
+
+  return (
+    <View className="flex-1 items-center justify-center gap-8 bg-background px-6">
+      <View className="flex-row gap-2">
+        {OPTIONS.map((option) => (
+          <Pressable
+            key={option}
+            onPress={() => setSelected(option)}
+            className={DATA_PILL_CLASS}
+            data-selected={option === selected}
+          >
+            <Text className="text-fg">{option}</Text>
+          </Pressable>
+        ))}
+      </View>
+      <Pressable
+        className="rounded-lg bg-fill px-3 py-2"
+        onPress={() => navigation.navigate("Settings")}
+      >
+        <Text className="text-fg">Open Settings</Text>
+      </Pressable>
+      <Text className="text-center text-fg">
+        All three pills share ONE class string; only data-selected differs
+        (Alpha true). Open Settings, flip theme, come back: the flip resolves
+        the string once with one arbitrary sibling's data value and fans it
+        out — either every pill turns brand or the selected one loses it.
+      </Text>
+    </View>
+  )
+}
+
 const Stack = createNativeStackNavigator()
 
 export default function App() {
@@ -107,6 +153,7 @@ export default function App() {
       <Stack.Navigator screenOptions={{ freezeOnBlur: true, headerShown: false }}>
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
+        <Stack.Screen name="DataAttrs" component={DataAttrsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   )
