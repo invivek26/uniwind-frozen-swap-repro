@@ -3,13 +3,20 @@
     "name": "UniwindRepro",
     "slug": "uniwind-frozen-swap-repro",
     "version": "1.0.0",
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "newArchEnabled": true,
+    "userInterfaceStyle": "automatic",
     "ios": {
       "bundleIdentifier": "com.repro.uniwindfrozenswap"
     },
     "android": {
       "package": "com.repro.uniwindfrozenswap"
+    },
+    "experiments": {
+      "reactCompiler": true
     }
   }
 }
