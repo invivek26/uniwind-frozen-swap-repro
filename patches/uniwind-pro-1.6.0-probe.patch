@@ -1,0 +1,37 @@
+--- a/ios/NativePlatform+ios.swift	1985-10-26 01:15:00
++++ b/ios/NativePlatform+ios.swift	2026-09-03 08:08:18
+@@ -160,12 +160,14 @@
+             guard let presentedViewController = RCTPresentedViewController(),
+                   let windowFrame = presentedViewController.view.window?.frame else {
+      
++                NSLog("[uniwind-probe] sample ZERO appState=%d keyWindow=%d presentedVC=%d", UIApplication.shared.applicationState.rawValue, RCTKeyWindow() != nil ? 1 : 0, RCTPresentedViewController() != nil ? 1 : 0)
+                 // this should never happen, but it's better to return zeros
+                 return Dimensions(width: 0, height: 0)
+             }
+ 
+             let width = windowFrame.size.width
+             let height = windowFrame.size.height
++            NSLog("[uniwind-probe] sample ok %.0fx%.0f appState=%d keyWindow=%d", width, height, UIApplication.shared.applicationState.rawValue, RCTKeyWindow() != nil ? 1 : 0)
+ 
+             return Dimensions(width: width, height: height)
+         }
+--- a/ios/NativePlatformListener+ios.swift	1985-10-26 01:15:00
++++ b/ios/NativePlatformListener+ios.swift	2026-09-03 08:08:18
+@@ -11,7 +11,8 @@
+         Publishers
+             .MergeMany([windowPublisher, orientationPublisher, colorSchemePublisher])
+             .throttle(for: .milliseconds(25), scheduler: RunLoop.main, latest: true)
+-            .sink { [weak self] _ in
++            .sink { [weak self] notification in
++                NSLog("[uniwind-probe] notification %@ appState=%d", notification.name.rawValue, UIApplication.shared.applicationState.rawValue)
+                 self?.onNativePlatformChange()
+             }
+             .store(in: &cancellables)
+@@ -26,6 +27,7 @@
+ 
+                 // listen for theme changes in React Native Modals
+                 self?.traitChangeRegistration = window.registerForTraitChanges([UITraitUserInterfaceStyle.self]) { [weak self] (_: UIWindow, _: UITraitCollection) in
++                    NSLog("[uniwind-probe] window trait change appState=%d", UIApplication.shared.applicationState.rawValue)
+                     self?.onNativePlatformChange()
+                 }
+             }

@@ -1,7 +1,7 @@
 import "./global.css"
 
-import { useState } from "react"
-import { Appearance, Pressable, Text, View } from "react-native"
+import { useEffect, useState } from "react"
+import { AppState, Appearance, Dimensions, Pressable, Text, View } from "react-native"
 import { NavigationContainer } from "@react-navigation/native"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { GlassView } from "expo-glass-effect"
@@ -64,6 +64,12 @@ const HomeScreen = ({ navigation }) => {
           onPress={() => navigation.navigate("DataAttrs")}
         >
           <Text className="text-fg">data-*</Text>
+        </Pressable>
+        <Pressable
+          className="rounded-lg bg-fill px-3 py-2"
+          onPress={() => navigation.navigate("Viewport")}
+        >
+          <Text className="text-fg">vw</Text>
         </Pressable>
       </View>
       <Text className="text-center text-fg">
@@ -145,6 +151,61 @@ const DataAttrsScreen = ({ navigation }) => {
   )
 }
 
+
+// Issue: iOS getScreenDimensions() returns 0x0 when RCTPresentedViewController
+// has no window (scene backgrounded); every vw/vh style collapses until the
+// next orientation/trait re-sample. The probe below measures what uniwind
+// actually resolved for 100vw, so a 0 in the log is conclusive.
+const ViewportScreen = ({ navigation }) => {
+  const [measured, setMeasured] = useState(null)
+  const [log, setLog] = useState([])
+
+  useEffect(() => {
+    const sub = AppState.addEventListener("change", (state) => {
+      setLog((prev) => [
+        `${new Date().toISOString().slice(11, 19)} ${state} 100vw=${measured ?? "?"} window=${Dimensions.get("window").width}`,
+        ...prev,
+      ].slice(0, 8))
+    })
+    return () => sub.remove()
+  }, [measured])
+
+  return (
+    <View className="flex-1 items-center justify-center gap-6 bg-background px-6">
+      <Pressable
+        className="rounded-lg bg-fill px-3 py-2"
+        onPress={() => Uniwind.setTheme("system")}
+      >
+        <Text className="text-fg">1. setTheme("system") — clears the window override</Text>
+      </Pressable>
+      <View
+        className="h-2 w-[100vw] bg-brand"
+        onLayout={(e) => setMeasured(Math.round(e.nativeEvent.layout.width))}
+      />
+      <View className="h-12 w-[50vw] items-center justify-center rounded-lg bg-brand">
+        <Text className="text-on-brand">w-[50vw]</Text>
+      </View>
+      <Text className="text-fg">{`100vw measured=${measured} · RN window=${Dimensions.get("window").width}`}</Text>
+      {log.map((line) => (
+        <Text key={line} className="text-xs text-fg">{line}</Text>
+      ))}
+      <Text className="text-center text-fg">
+        2. Press Home. 3. While backgrounded: xcrun simctl ui booted appearance
+        dark, then light (or rotate the device). 4. Return. Expected: the bar
+        stays full width. Bug: the bar and the 50vw box collapse to 0 and the
+        log shows 100vw=0 while RN window width is unchanged. Rotating once
+        in the foreground heals it.
+      </Text>
+      <Pressable
+        className="rounded-lg bg-fill px-3 py-2"
+        onPress={() => navigation.goBack()}
+      >
+        <Text className="text-fg">Back</Text>
+      </Pressable>
+    </View>
+  )
+}
+
 const Stack = createNativeStackNavigator()
 
 export default function App() {
@@ -154,6 +215,7 @@ export default function App() {
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="DataAttrs" component={DataAttrsScreen} />
+        <Stack.Screen name="Viewport" component={ViewportScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   )
