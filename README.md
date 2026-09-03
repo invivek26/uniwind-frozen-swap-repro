@@ -31,7 +31,7 @@ The **data-*** button opens a screen for the companion report: three pills share
 
 ## Third issue: `vw`/`vh` collapse to 0 after the app returns from background (iOS)
 
-The **vw** button opens a screen for [uni-stack/uniwind#663](https://github.com/uni-stack/uniwind/issues/663): a `w-[100vw]` bar measured with `onLayout`, a `w-[50vw]` box, and a log line per app-state change showing what uniwind resolved for `100vw` next to `Dimensions.get("window").width`.
+The **vw** button opens a screen for [uni-stack/uniwind#665](https://github.com/uni-stack/uniwind/issues/665): a `w-[100vw]` bar measured with `onLayout`, a `w-[50vw]` box, and a log line per app-state change showing what uniwind resolved for `100vw` next to `Dimensions.get("window").width`.
 
 Mechanism: `ios/NativePlatform+ios.swift` `getScreenDimensions()` returns `Dimensions(0, 0)` when `RCTPresentedViewController().view.window` is nil, and `RCTKeyWindow()` is nil while the scene is `.background`. The iOS 17 `registerForTraitChanges` listener in `NativePlatformListener+ios.swift` has no app-state guard, and iOS delivers a deferred appearance change at wake-up while the app is still in the background state, so uniwind caches a 0×0 screen. Same bug as react-native-unistyles #527, fixed there in #540.
 
