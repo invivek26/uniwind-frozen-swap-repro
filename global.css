@@ -1,11 +1,10 @@
 @import "tailwindcss";
 @import "uniwind";
 
-/* --color-on-brand is deliberately IDENTICAL in every block — the bug paints
-   it as nothing (RN default black ink) after a frozen-time theme flip. */
+/* Defaults mirror the dark block, same shape as the app under test. */
 @theme {
   --color-background: #000000;
-  --color-fg: #ffffff;
+  --color-foreground: #ffffff;
   --color-fill: #26292b;
   --color-brand: #0044ff;
   --color-on-brand: #ffffff;
@@ -15,7 +14,7 @@
   :root {
     @variant dark {
       --color-background: #000000;
-      --color-fg: #ffffff;
+      --color-foreground: #ffffff;
       --color-fill: #26292b;
       --color-brand: #0044ff;
       --color-on-brand: #ffffff;
@@ -23,8 +22,8 @@
 
     @variant light {
       --color-background: #f2f2f6;
-      --color-fg: #2d2d2d;
-      --color-fill: #ffffff;
+      --color-foreground: #000000;
+      --color-fill: #ff9500;
       --color-brand: #0044ff;
       --color-on-brand: #ffffff;
     }
