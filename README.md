@@ -17,7 +17,7 @@ distinguishable without reading pixels.
 Across `CircleTopRight`, `CircleFromOrigin`, `Fade`, `Blur` and plain
 `setTheme`, in both directions, on iOS 26.4 and iOS 26.5, every glyph matched
 its swatch on every frame. Each flip lands as a single commit carrying both
-lanes together (`Text:50 View:11`).
+lanes together (`Text:60 View:18` for the full matrix).
 
 Configurations tried, all clean: plain `Text`; nested `Text`; `Text` with a
 `style` prop; `maxFontSizeMultiplier`; inside `<Freeze freeze={false}>`; an
@@ -27,6 +27,31 @@ alpha-modified token (`text-foreground/50`); inside a `Pressable`;
 commits to the shadow tree every frame across the flip. React Compiler is on
 (`experiments.reactCompiler`), which was the required ingredient for the
 earlier frozen-swap bug in this repo's history.
+
+### Custom fontFamily is not the trigger either
+
+The app under test narrowed its own case to `Text` carrying a custom font
+class — stripping `font-aeonik-light` from a Settings row made it follow the
+theme again. That does not reproduce here. The repro now ships the same three
+Aeonik TTFs, registered through the same `expo-font` config plugin, with the
+same `--font-aeonik` / `--font-aeonik-light` / `--font-aeonik-bold` tokens and
+the same `--text-*: initial` reset, so `font-aeonik-light text-lg
+text-foreground` resolves to a byte-identical payload:
+
+```
+{"fontFamily":"Aeonik-Light","fontSize":16,"color":"#ffffff"}
+```
+
+Rows covering `font-aeonik`, `font-aeonik-light`, `font-aeonik-bold`,
+`font-[System]`, a raw `style={{ fontFamily }}`, and the same className routed
+through a `CustomText` wrapper (so uniwind sees a forwarded prop at the host
+site rather than a literal at the JSX site) all flip correctly under every
+preset. The on-screen resolver line prints what uniwind resolves for
+`font-aeonik-light`, so a payload regression would be visible without reading
+pixels.
+
+iOS resolves `fontFamily` by the TTF's internal family name, which is why the
+token value is `"Aeonik-Regular"` and not the filename.
 
 ## Second finding: `updateCSSVariables(theme, {})` commits nothing
 

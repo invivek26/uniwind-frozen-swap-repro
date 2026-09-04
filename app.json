@@ -17,6 +17,18 @@
     },
     "experiments": {
       "reactCompiler": true
-    }
+    },
+    "plugins": [
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/Aeonik-Regular.ttf",
+            "./assets/fonts/Aeonik-Light.ttf",
+            "./assets/fonts/Aeonik-Bold.ttf"
+          ]
+        }
+      ]
+    ]
   }
 }

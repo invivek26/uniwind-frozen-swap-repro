@@ -9,7 +9,7 @@ import Animated, {
   withRepeat,
   withTiming,
 } from "react-native-reanimated"
-import { ThemeTransitionPreset, Uniwind, useUniwind } from "uniwind"
+import { ThemeTransitionPreset, Uniwind, useResolveClassNames, useUniwind } from "uniwind"
 import { enableDiagnostics } from "uniwind/diagnostics"
 import { UniwindDiagnostics } from "uniwind/src/specs"
 
@@ -59,6 +59,11 @@ const Row = ({ label, children }) => (
     <View className="size-6 bg-foreground" />
   </View>
 )
+
+// The app under test never renders a bare `Text`: className reaches react-native's
+// Text through this wrapper, so uniwind sees a forwarded prop at the host site
+// rather than a literal at the JSX site.
+const CustomText = (props) => <Text maxFontSizeMultiplier={1.2} {...props} />
 
 // uniwind-pro #518: a concurrent Reanimated commit can clobber the theme's
 // shadow-tree commit on subtrees under an Animated view. Both rows keep the
@@ -124,6 +129,7 @@ export default function App() {
   const { theme } = useUniwind()
   const next = theme === "dark" ? "light" : "dark"
   const [batch, setBatch] = useState(lastBatch)
+  const resolved = useResolveClassNames("font-aeonik-light text-lg text-foreground")
 
   useEffect(() => {
     const listener = () => setBatch(lastBatch)
@@ -137,6 +143,9 @@ export default function App() {
     <View className="flex-1 justify-center gap-2 bg-background px-3">
       <Text style={INFO_LABEL}>{`theme=${theme} current=${Uniwind.currentTheme}`}</Text>
       <Text style={{ ...INFO_LABEL, width: 380, color: "#0044ff" }}>{`last commit -> ${batch}`}</Text>
+      <Text style={{ ...INFO_LABEL, width: 380, color: "#0044ff" }}>
+        {`font-aeonik-light -> ${JSON.stringify(resolved)}`}
+      </Text>
 
       <Row label="plain">
         <Text className="text-foreground">Aa</Text>
@@ -167,6 +176,33 @@ export default function App() {
       </Row>
       <Row label="numberOfLines">
         <Text className="text-foreground" numberOfLines={1}>Aa</Text>
+      </Row>
+      <View className="flex-row items-center gap-3">
+        <Text style={INFO_LABEL}>bold A/B</Text>
+        <Text className="font-aeonik-bold text-3xl text-foreground">Aa</Text>
+        <Text className="text-3xl text-foreground" style={{ fontFamily: "Aeonik-Bold" }}>Aa</Text>
+        <Text className="text-3xl text-foreground">Aa</Text>
+      </View>
+      <Row label="CustomText+font">
+        <CustomText className="font-aeonik-light text-lg text-foreground">Aa</CustomText>
+      </Row>
+      <Row label="CustomText no font">
+        <CustomText className="text-lg text-foreground">Aa</CustomText>
+      </Row>
+      <Row label="font-aeonik">
+        <Text className="font-aeonik text-lg text-foreground">Aa</Text>
+      </Row>
+      <Row label="font-aeonik-light">
+        <Text className="font-aeonik-light text-lg text-foreground">Aa</Text>
+      </Row>
+      <Row label="font-aeonik-bold">
+        <Text className="font-aeonik-bold text-lg text-foreground">Aa</Text>
+      </Row>
+      <Row label="font-[System]">
+        <Text className="font-[System] text-lg text-foreground">Aa</Text>
+      </Row>
+      <Row label="fontFamily via style">
+        <Text className="text-lg text-foreground" style={{ fontFamily: "Aeonik-Light" }}>Aa</Text>
       </Row>
       <AnimatedRow label="under Animated" running={false} />
       <AnimatedRow label="under Animated+anim" running />

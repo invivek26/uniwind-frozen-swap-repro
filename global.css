@@ -3,6 +3,19 @@
 
 /* Defaults mirror the dark block, same shape as the app under test. */
 @theme {
+  /* iOS resolves fontFamily by the TTF's internal family name, not the
+     filename. Same tokens as the app under test. */
+  --font-aeonik: "Aeonik-Regular";
+  --font-aeonik-light: "Aeonik-Light";
+  --font-aeonik-bold: "Aeonik-Bold";
+
+  /* Same as the app under test: clearing the stock namespace makes the text
+     utilities emit font-size only, so a Text payload is {fontFamily, fontSize,
+     color} with no lineHeight. */
+  --text-*: initial;
+  --text-lg: 16px;
+  --text-3xl: 20px;
+
   --color-background: #000000;
   --color-foreground: #ffffff;
   --color-fill: #26292b;
